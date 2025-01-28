@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { storeData, removeData, getData } from "../../utils/localstorage";
 import { useRouter } from "next/navigation";  // Import useRouter from next/router
 import styleHomePage from "./css/homePage.module.css"
+import { ref, set, push } from "firebase/database";
+import { database } from "../../utils/firebase";
 
 
 export default function YouTubeSentimentAnalyzer() {
@@ -72,6 +74,7 @@ export default function YouTubeSentimentAnalyzer() {
         storeData("netural", data.overall.neutral_count);
         storeData("months", data.total_comments_monthly);
         console.log(getData("months"));
+        addData()
 
         // Debugging
         console.log(getData("agree"));
@@ -95,6 +98,32 @@ export default function YouTubeSentimentAnalyzer() {
   const percentages = sentiment
     ? calcPercentage(sentiment.agree_count, sentiment.disagree_count, sentiment.neutral_count)
     : null;
+
+  // read and write in database 
+ 
+
+  const addData = () => {
+    // Reference to the "Anchor" node in your database
+    const dataRef = ref(database, "Anchor");
+  
+    // Generate a new unique key
+    const newEntryRef = push(dataRef);
+  
+    // Set data with the desired structure
+    set(newEntryRef, {
+      Agree: sentiment.agree_count,
+      Disagree: sentiment.disagree_count,
+      Netural: sentiment.neutral_count,
+      URL: videoUrl,
+      Comments:comments, 
+    })
+    .then(() => {
+      console.log("Data added successfully!");
+    })
+    .catch((error) => {
+      console.error("Error adding data:", error);
+    });
+  };
 
   return (
     <div className={`p-6 max-w-3xl mx-auto bg-white rounded-lg shadow-md ${styleHomePage.body}`}>

@@ -66,7 +66,7 @@ useEffect(() => {
     <div className={styleResult.footer}>
     
       <button className={styleResult.backbutton}>
-      <Link  href="/home">Back to Input</Link>
+      <Link  href="/">Back to Input</Link>
       </button>
       </div>
 

@@ -38,3 +38,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 npm install puppeteer
 
 npm install chart.js react-chartjs-2
+
+npm install clsx
+
+npm install tailwind-merge
+
+npm install firebase

@@ -31,7 +31,7 @@ const months = [
 ];
 
 
-let january = totalCommentsMonthly["January"] || 3;
+let january = totalCommentsMonthly["January"] || 0;
 let february = totalCommentsMonthly["February"] || 0;
 let march = totalCommentsMonthly["March"] || 0;
 let april = totalCommentsMonthly["April"] || 0;
