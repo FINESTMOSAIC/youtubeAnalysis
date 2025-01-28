@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { storeData, removeData, getData } from "./utils/localstorage";
+import { storeData, removeData, getData } from "../../utils/localstorage";
 import { useRouter } from "next/navigation";  // Import useRouter from next/router
 import styleHomePage from "./css/homePage.module.css"
 
