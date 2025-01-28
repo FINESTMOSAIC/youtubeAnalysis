@@ -1,5 +1,4 @@
-import sys
-import json
+from flask import Flask, request, jsonify
 from datetime import datetime
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import nltk
@@ -8,11 +7,19 @@ import nltk
 nltk.download('vader_lexicon', quiet=True)
 analyzer = SentimentIntensityAnalyzer()
 
+app = Flask(__name__)
+
+# Global counters
+agree_count = 0
+disagree_count = 0
+neutral_count = 0
+
 def classify_comment(comment):
-    # Get the sentiment score
+    """
+    Get the sentiment score and classify the comment as Agree, Disagree, or Neutral.
+    """
     sentiment = analyzer.polarity_scores(comment)
     
-    # Classify the comment based on the score
     if sentiment['compound'] > 0:
         return 'Agree'
     elif sentiment['compound'] < 0:
@@ -21,15 +28,19 @@ def classify_comment(comment):
         return 'Neutral'
 
 def extract_month(timestamp):
+    """
+    Parse the timestamp and extract the month. If parsing fails, return "Unknown".
+    """
     try:
-        # Parse the timestamp and extract the month
         date = datetime.fromisoformat(timestamp)
-        return date.strftime("%B")  # Returns full month name
+        return date.strftime("%B")
     except ValueError:
         return "Unknown"
 
-
 def process_comments(comments):
+    """
+    Process comments to classify their sentiment and summarize them by month.
+    """
     global agree_count, disagree_count, neutral_count
     monthly_summary = {}
     total_monthly_comments = {}
@@ -72,12 +83,27 @@ def process_comments(comments):
         "total_comments_monthly": total_monthly_comments,
     }
 
-agree_count = 0
-disagree_count = 0
-neutral_count = 0
+@app.route('/analyze', methods=['POST'])
+def analyze_comments():
+    """
+    API endpoint to analyze a list of comments.
+    """
+    global agree_count, disagree_count, neutral_count
+    agree_count = 0
+    disagree_count = 0
+    neutral_count = 0
 
-if __name__ == "__main__":
-    # Read input from stdin
-    comments = json.loads(sys.stdin.read())  # Read and parse the JSON input
-    sentiment = process_comments(comments)
-    print(json.dumps(sentiment, indent=4))  # Output the sentiment results with indentation
+    try:
+        data = request.get_json()
+        if not data or not isinstance(data, list):
+            return jsonify({"error": "Invalid input. Expected a list of comments."}), 400
+
+        # Process comments
+        sentiment = process_comments(data)
+        return jsonify(sentiment)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+if __name__ == '__main__':
+    app.run(host='0.0.0.0', port=5000)
